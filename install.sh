@@ -26,7 +26,7 @@ function checkOS() {
 		fi
 		if [[ $ID == "centos" || $ID == "rocky" || $ID == "almalinux" ]]; then
 			OS="centos"
-			if [[ ! $VERSION_ID =~ (7|8) ]]; then
+			if [[ ! $VERSION_ID =~ (7|8|9) ]]; then
 				echo "⚠️ Your version of CentOS is not supported."
 				echo ""
 				echo "The script only support CentOS 7 and CentOS 8."
@@ -264,14 +264,14 @@ verb 3" >>/etc/openvpn/server.conf
 	# Finally, restart and enable OpenVPN
 	
     # Don't modify package-provided service
-    cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
+    cp /lib/systemd/system/openvpn-server\@.service /etc/systemd/system/openvpn-server\@.service
     # Workaround to fix OpenVPN service on OpenVZ
-    sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
+    sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn-server\@.service
     # Another workaround to keep using /etc/openvpn/
-    sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
+    sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn-server\@.service
     systemctl daemon-reload
-    systemctl enable openvpn@server
-    systemctl restart openvpn@server
+    systemctl enable openvpn-server@server
+    systemctl restart openvpn-server@server
 
 	# Add iptables rules in two scripts
 	mkdir -p /etc/iptables
@@ -354,10 +354,10 @@ function removeOpenVPN() {
 		
         # Stop OpenVPN
 		if [[ $OS =~ (fedora|arch|centos|oracle) ]]; then
-			systemctl disable openvpn@server
-			systemctl stop openvpn@server
+			systemctl disable openvpn-server@server
+			systemctl stop openvpn-server@server
 			# Remove customised service
-			rm /etc/systemd/system/openvpn@.service
+			rm /etc/systemd/system/openvpn-server@.service
 		fi
 		# Remove the iptables rules related to the script
 		systemctl stop iptables-openvpn
